@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Resources;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
@@ -20,8 +24,7 @@ public class Player : MonoBehaviour
     public float innerRadius;
     public float outerRadius;
 
-    
-    public UIManager uiManager;
+    public ResourceManager resourceManager;
 
     private InputAction moveInput;
     private InputAction previousInput;
@@ -30,6 +33,9 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     [SerializeField]
     private Animator animator;
+
+    private Dictionary<UpgradeType, int> upgradeLevels;
+    private Dictionary<UpgradeType, float> upgradeValues;
 
 
     private void Awake()
@@ -43,7 +49,14 @@ public class Player : MonoBehaviour
     public void Start()
     {
         lightComp = GetComponentInChildren<Light2D>();
-        lightRadiusLevel = 1;
+        lightRadiusLevel = 0;
+        upgradeLevels = new Dictionary<UpgradeType, int>();
+        upgradeValues = new Dictionary<UpgradeType, float>();
+        foreach (UpgradeType uType in Enum.GetValues(typeof(UpgradeType)))
+        {
+            upgradeLevels.Add(uType, 0);
+            upgradeValues.Add(uType, 0);
+        }
     }
 
     void Update()
@@ -57,7 +70,8 @@ public class Player : MonoBehaviour
 
         // Movement
         Vector2 moveValue = moveInput.ReadValue<Vector2>();
-        rb.linearVelocity = moveValue * moveSpeed;
+        float moveUpgradeModifier = 1f + (upgradeValues[UpgradeType.MovementSpeed] * upgradeLevels[UpgradeType.MovementSpeed]);
+        rb.linearVelocity = moveValue * moveSpeed * moveUpgradeModifier;
 
         // Animation
         if (moveValue != Vector2.zero)
@@ -81,10 +95,36 @@ public class Player : MonoBehaviour
         }
 
         // Reduce fuel
-        fuelValue -= Mathf.Clamp(fuelDecayRate * (1f + (lightRadiusLevel * fuelDecayGrowthRate)) * Time.deltaTime, 0, 100);
+        float upgradeReductionValue = (1f - (upgradeLevels[UpgradeType.FuelEfficiency] * upgradeValues[UpgradeType.FuelEfficiency]));
+        float lightRadiusFuelModifier = (1f + (lightRadiusLevel * fuelDecayGrowthRate));
 
-        uiManager.UpdateFuel(fuelValue / 100);
+        fuelValue -= fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * Time.deltaTime;
+        fuelValue = Mathf.Clamp(fuelValue, 0, 100);
+        resourceManager.ReduceFuel(fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * Time.deltaTime);
+        
+    }
 
+    public void UpdateUpgrades(List<UpgradeDetails> upgradeDetails)
+    {
+        foreach (var upgrade in upgradeDetails)
+        {
+            if (upgradeLevels.ContainsKey(upgrade.type))
+            {
+                upgradeLevels[upgrade.type] = upgrade.currentLevel;
+            }
+            else
+            {
+                upgradeLevels.Add(upgrade.type, upgrade.currentLevel);
+            }
 
+            if (upgradeValues.ContainsKey(upgrade.type))
+            {
+                upgradeValues[upgrade.type] = upgrade.value;
+            }
+            else
+            {
+                upgradeValues.Add(upgrade.type, upgrade.value);
+            }
+        }
     }
 }
