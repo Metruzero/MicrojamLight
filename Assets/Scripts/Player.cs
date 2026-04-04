@@ -28,7 +28,9 @@ public class Player : MonoBehaviour
     private InputAction nextInput;
     private int lightRadiusLevel;
     private Rigidbody2D rb;
-    
+    [SerializeField]
+    private Animator animator;
+
 
     private void Awake()
     {
@@ -56,6 +58,16 @@ public class Player : MonoBehaviour
         // Movement
         Vector2 moveValue = moveInput.ReadValue<Vector2>();
         rb.linearVelocity = moveValue * moveSpeed;
+
+        // Animation
+        if (moveValue != Vector2.zero)
+        {
+            animator.SetBool("IsWalkingDown", true);
+        }
+        else
+        {
+            animator.SetBool("IsWalkingDown", false);
+        }
 
         // Light Manip
         if (previousInput.WasPressedThisFrame() && lightRadiusLevel > 0)
