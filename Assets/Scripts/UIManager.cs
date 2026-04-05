@@ -34,6 +34,9 @@ public class UIManager : MonoBehaviour
     private InputAction toggleAction;
     private bool displayToggle = false;
 
+    [SerializeField]
+    private GameObject dialogueContainerPanel, upgradePanel, sellPanel, levelCompletePanel;
+
     private void Awake()
     {
         fuelBarRect = fuelBar.GetComponent<RectTransform>();
@@ -47,8 +50,7 @@ public class UIManager : MonoBehaviour
         {
             if (!displayToggle)
             {
-                gameplayPanel.SetActive(false);
-                shopPanel.SetActive(true);
+                ShowShop();
             }
             else
             {
@@ -94,5 +96,43 @@ public class UIManager : MonoBehaviour
     {
         Debug.Log("upgradeButtons[ind].buttonObject.GetComponent<Button>().interactable" + upgradeButtons[ind].buttonObject.GetComponent<Button>().interactable);
         upgradeButtons[ind].buttonObject.GetComponent<Button>().interactable = false;
+    }
+
+    public void HideLeftShopBoxes()
+    {
+        dialogueContainerPanel.SetActive(false);
+        upgradePanel.SetActive(false);
+        sellPanel.SetActive(false);
+    }
+
+    public void ShowUpgradeBox()
+    {
+        upgradePanel.SetActive(true);
+    }
+
+    public void ShowSellBox()
+    {
+        sellPanel.SetActive(true);
+    }
+
+    public void ShowDialogueBox()
+    {
+        dialogueContainerPanel.SetActive(true);
+    }
+
+    public void ShowLevelCompletePanel()
+    {
+        levelCompletePanel.SetActive(true);
+    }
+
+    public void HideLevelCompletePanel()
+    {
+        levelCompletePanel.SetActive(false);
+    }
+
+    public void ShowShop()
+    {
+        gameplayPanel.SetActive(false);
+        shopPanel.SetActive(true);
     }
 }

@@ -33,9 +33,15 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     [SerializeField]
     private Animator animator;
+    [SerializeField]
+    private GameState gameState;
+
+    private Vector2 lastMove;
 
     private Dictionary<UpgradeType, int> upgradeLevels;
     private Dictionary<UpgradeType, float> upgradeValues;
+    [SerializeField]
+    private SpriteRenderer spriteRenderer;
 
 
     private void Awake()
@@ -59,50 +65,61 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void Animate(Vector2 moveValue)
+    {
+
+        spriteRenderer.flipX = lastMove.x > 0 ? true : false;
+        animator.SetFloat("MoveX", moveValue.x);
+        animator.SetFloat("MoveY", moveValue.y);
+        animator.SetFloat("MoveMag", moveValue.magnitude);
+        animator.SetFloat("LastMoveX", lastMove.x);
+        animator.SetFloat("LastMoveY", lastMove.y);
+    }
+
     void Update()
     {
-        // This will "randomly" change the intensity of the light to create a flicker effect
-        float noise = Mathf.PerlinNoise(Time.time * intensityVariationSpeed, 0);
-        lightComp.intensity = baseIntensity + (noise - 0.5f) * intensityVariationValue;
-        lightComp.pointLightInnerRadius = innerRadius * (1f + (lightRadiusLevel * increasedRadiusMulti));
-        lightComp.pointLightOuterRadius = outerRadius * (1f + (lightRadiusLevel * increasedRadiusMulti));
-
-
-        // Movement
-        Vector2 moveValue = moveInput.ReadValue<Vector2>();
-        float moveUpgradeModifier = 1f + (upgradeValues[UpgradeType.MovementSpeed] * upgradeLevels[UpgradeType.MovementSpeed]);
-        rb.linearVelocity = moveValue * moveSpeed * moveUpgradeModifier;
-
-        // Animation
-        if (moveValue != Vector2.zero)
+        if (gameState == GameState.Active)
         {
-            animator.SetBool("IsWalkingDown", true);
-        }
-        else
-        {
-            animator.SetBool("IsWalkingDown", false);
-        }
+            // This will "randomly" change the intensity of the light to create a flicker effect
+            float noise = Mathf.PerlinNoise(Time.time * intensityVariationSpeed, 0);
+            lightComp.intensity = baseIntensity + (noise - 0.5f) * intensityVariationValue;
+            lightComp.pointLightInnerRadius = innerRadius * (1f + (lightRadiusLevel * increasedRadiusMulti));
+            lightComp.pointLightOuterRadius = outerRadius * (1f + (lightRadiusLevel * increasedRadiusMulti));
 
-        // Light Manip
-        if (previousInput.WasPressedThisFrame() && lightRadiusLevel > 0)
-        {
-            lightRadiusLevel--;
+
+            // Movement
+            Vector2 moveValue = moveInput.ReadValue<Vector2>();
+            float moveUpgradeModifier = 1f + (upgradeValues[UpgradeType.MovementSpeed] * upgradeLevels[UpgradeType.MovementSpeed]);
+            rb.linearVelocity = moveValue * moveSpeed * moveUpgradeModifier;
+
+            if (moveValue.magnitude > 0.1)
+            {
+                lastMove = moveValue;
+            }
+
+            Animate(moveValue);
+
+            // Light Manip
+            if (previousInput.WasPressedThisFrame() && lightRadiusLevel > 0)
+            {
+                lightRadiusLevel--;
+            }
+
+            if (nextInput.WasPressedThisFrame() && lightRadiusLevel < 2)
+            {
+                lightRadiusLevel++;
+            }
+
+            // Reduce fuel
+            float upgradeReductionValue = (1f - (upgradeLevels[UpgradeType.FuelEfficiency] * upgradeValues[UpgradeType.FuelEfficiency]));
+
+            float growthRateUpgradeModification = (1f - (upgradeLevels[UpgradeType.LargerLightEfficiency] * upgradeValues[UpgradeType.LargerLightEfficiency]));
+            Debug.Log("growthRateUpgradeModification: " + growthRateUpgradeModification);
+            float lightRadiusFuelModifier = (1f + (lightRadiusLevel * fuelDecayGrowthRate * growthRateUpgradeModification));
+
+            fuelValue -= fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * Time.deltaTime;
+            resourceManager.ReduceFuel(fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * Time.deltaTime);
         }
-
-        if (nextInput.WasPressedThisFrame() && lightRadiusLevel < 2)
-        {
-            lightRadiusLevel++;
-        }
-
-        // Reduce fuel
-        float upgradeReductionValue = (1f - (upgradeLevels[UpgradeType.FuelEfficiency] * upgradeValues[UpgradeType.FuelEfficiency]));
-        float growthRateUpgradeModification = (1f - (upgradeLevels[UpgradeType.LargerLightEfficiency] * upgradeValues[UpgradeType.LargerLightEfficiency]));
-        Debug.Log("growthRateUpgradeModification: " + growthRateUpgradeModification);
-        float lightRadiusFuelModifier = (1f + (lightRadiusLevel * fuelDecayGrowthRate * growthRateUpgradeModification));
-
-        fuelValue -= fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * Time.deltaTime;
-        resourceManager.ReduceFuel(fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * Time.deltaTime);
-        
     }
 
     public void UpdateUpgrades(List<UpgradeDetails> upgradeDetails)
@@ -127,5 +144,15 @@ public class Player : MonoBehaviour
                 upgradeValues.Add(upgrade.type, upgrade.value);
             }
         }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        
+    }
+
+    public void UpdateGameState(GameState gameState)
+    {
+        this.gameState = gameState;
     }
 }

@@ -35,6 +35,7 @@ public class UpgradeManager : MonoBehaviour
     public List<UpgradeDetails> details;
     public Dictionary<UpgradeType, UpgradeDetails> upgradeDictionary;
     private List<UpgradeType> availableUpgradeTypes;
+    private Dictionary<ItemType, int> itemCounts;
 
     [SerializeField]
     private ResourceManager resourceManager;
@@ -49,6 +50,12 @@ public class UpgradeManager : MonoBehaviour
 
     void Start()
     {
+        itemCounts = new Dictionary<ItemType, int>();
+        foreach (ItemType type in Enum.GetValues(typeof(ItemType)))
+        {
+            itemCounts.Add(type, 0);
+        }
+
         availableUpgradeTypes = new List<UpgradeType>();
         foreach (UpgradeType upgradeType in Enum.GetValues(typeof(UpgradeType)))
         {
@@ -102,21 +109,22 @@ public class UpgradeManager : MonoBehaviour
         UpgradeType type = currentUpgradeToPurchase[index];
         Debug.Log(type);
 
-        UpgradeDetails details = upgradeDictionary[type];
+        UpgradeDetails uDetails = upgradeDictionary[type];
 
-        int cost = CalculateCost(details);
+        int cost = CalculateCost(uDetails);
 
         // Check if player has resource.
         if (cost <= resourceManager.GetCurrency())
         {
             resourceManager.AdjustCurrency(-cost);
-            details.currentLevel++;
+            uDetails.currentLevel++;
             // If this raises the upgrade to max level, remove it from the pool
-            if (details.currentLevel >= details.maxLevel)
+            if (uDetails.currentLevel >= uDetails.maxLevel)
             {
                 availableUpgradeTypes.Remove(type);
             }
             uiManager.UpgradeCompleteDisableButton(index);
+            PushUpgrades();
         }
     }
 
@@ -127,7 +135,7 @@ public class UpgradeManager : MonoBehaviour
 
     private void PushUpgrades()
     {
-
+        player.UpdateUpgrades(details);
     }
 
 }
