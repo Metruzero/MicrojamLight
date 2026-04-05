@@ -105,7 +105,6 @@ public class StageManager : MonoBehaviour
             currentSum += itemWeights[j];
             if (randomWeight <= currentSum)
             {
-                Debug.Log(j);
                 itemData = datas[j];
                 return itemData;
             }

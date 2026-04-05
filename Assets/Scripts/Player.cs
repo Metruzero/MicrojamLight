@@ -52,6 +52,9 @@ public class Player : MonoBehaviour
 
     public float difficultyDecayRate;
 
+    [SerializeField]
+    private UIManager uiManager;
+
 
     private void Awake()
     {
@@ -77,8 +80,6 @@ public class Player : MonoBehaviour
 
     private void Animate(Vector2 moveValue)
     {
-
-        spriteRenderer.flipX = lastMove.x > 0 ? true : false;
         animator.SetFloat("MoveX", moveValue.x);
         animator.SetFloat("MoveY", moveValue.y);
         animator.SetFloat("MoveMag", moveValue.magnitude);
@@ -131,10 +132,13 @@ public class Player : MonoBehaviour
 
             if (interactAction.IsPressed() && CurrentInteractable != null)
             {
+                uiManager.ShowProgressBar();
                 currentWorkDuration += Time.deltaTime;
+                uiManager.SetProgressAmount(currentWorkDuration / currentMaxWorkTime);
                 if (currentWorkDuration > currentMaxWorkTime)
                 {
                     CurrentInteractable.Complete();
+                    uiManager.HideProgressBar();
                 }
                 isWorking = true;
 
@@ -144,6 +148,7 @@ public class Player : MonoBehaviour
             {
                 isWorking = false;
                 currentWorkDuration = 0f;
+                uiManager.HideProgressBar();
             }
 
         }

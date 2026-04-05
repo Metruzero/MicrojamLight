@@ -20,6 +20,9 @@ public class UIManager : MonoBehaviour
 {
     public List<ItemDataSO> datas;
 
+    public GameObject progressImage;
+    public RectTransform progressRectTransform;
+
     [SerializeField]
     private TextMeshProUGUI timeTMP;
 
@@ -33,6 +36,8 @@ public class UIManager : MonoBehaviour
     private List<UpgradeButton> upgradeButtons;
 
     private RectTransform fuelBarRect;
+    [SerializeField]
+    private RectTransform potentialFuelBarRect;
 
     [SerializeField]
     private GameObject dialogueContainerPanel, upgradePanel, sellPanel, levelCompletePanel;
@@ -59,6 +64,8 @@ public class UIManager : MonoBehaviour
 
     public GameObject ArrowIndicator;
 
+    public GameObject GameOverPanel;
+
     private void Awake()
     {
         fuelBarRect = fuelBar.GetComponent<RectTransform>();
@@ -74,9 +81,10 @@ public class UIManager : MonoBehaviour
         timeTMP.text = time.ToString("#");
     }
 
-    public void UpdateFuel(float fuelPercentage)
+    public void UpdateFuel(float fuelPercentage, float potentialFuelPercentage)
     {
         fuelBarRect.localScale = new Vector3(1f, fuelPercentage, 1f);
+        potentialFuelBarRect.localScale = new Vector3(1f, potentialFuelPercentage, 1f);
     }
 
     public void UpdateUpgradeButton(string upgradeTitle, string upgradeDescription, int cost, bool enable, int index)
@@ -157,19 +165,19 @@ public class UIManager : MonoBehaviour
             {
                 case ItemType.OilBottle:
                     gameplayBottleTMP.text = itemCounts[item].ToString();
-                    shopBottleTMP.text += itemCounts[item].ToString();
+                    shopBottleTMP.text = itemCounts[item].ToString();
                     sellBottleTMP.text = string.Concat("Sell for ", items[item].cost.ToString());
                     sellBottleButton.interactable = itemCounts[item] > 0;
                     break;
                 case ItemType.OilBarrel:
                     gameplayBarrelTMP.text = itemCounts[item].ToString();
-                    shopBarrelTMP.text += itemCounts[item].ToString();
+                    shopBarrelTMP.text = itemCounts[item].ToString();
                     sellBarrelTMP.text = string.Concat("Sell for ", items[item].cost.ToString());
                     sellBarrelButton.interactable = itemCounts[item] > 0;
                     break;
                 case ItemType.Battery:
                     gameplayBatteryTMP.text = itemCounts[item].ToString();
-                    shopBatteryTMP.text += itemCounts[item].ToString();
+                    shopBatteryTMP.text = itemCounts[item].ToString();
                     sellBatteryTMP.text = string.Concat("Sell for ", items[item].cost.ToString());
                     sellBatteryButton.interactable = itemCounts[item] > 0;
                     break;
@@ -199,5 +207,25 @@ public class UIManager : MonoBehaviour
         {
             ArrowIndicator.transform.position = bottleIndicator.transform.position;
         }
+    }
+
+    public void ShowGameOverScreen()
+    {
+        GameOverPanel.SetActive(true);
+    }
+
+    public void ShowProgressBar()
+    {
+        progressImage.SetActive(true);
+    }
+
+    public void HideProgressBar()
+    {
+        progressImage.SetActive(false);
+    }
+
+    public void SetProgressAmount(float percentage)
+    {
+        progressRectTransform.localScale = new Vector3(percentage, 1f, 1f);
     }
 }

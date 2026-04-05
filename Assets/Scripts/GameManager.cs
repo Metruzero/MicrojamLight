@@ -32,6 +32,9 @@ public class GameManager : MonoBehaviour
     private int level = 1;
     public float difficultyDecayRate;
 
+    [SerializeField]
+    private Transform PlayerStartPosition;
+
     void Start()
     {
         RefreshGame();
@@ -50,7 +53,7 @@ public class GameManager : MonoBehaviour
                 resourceManager.AdjustCurrency(0);
                 uiManager.ShowLevelCompletePanel();
                 time = transitionTimeToShop;
-                player.UpdateGameState(gameState);
+                UpdateGameStates();
                 level++;
             }
             uiManager.UpdateTime(time);
@@ -59,27 +62,41 @@ public class GameManager : MonoBehaviour
         {
             if (time <= 0)
             {
+                stageManager.ClearStage();
                 gameState = GameState.Shop;
                 resourceManager.PushUpdateToUI();
                 uiManager.HideLevelCompletePanel();
                 upgradeManager.RefreshUpgrades();
                 uiManager.ShowShop();
-                player.UpdateGameState(gameState);
+                UpdateGameStates();
             }
         }
+    }
+
+    private void UpdateGameStates()
+    {
+        player.UpdateGameState(gameState);
+        resourceManager.UpdateGameState(gameState);
     }
 
     public void StartGame()
     {
         gameState = GameState.Active;
         time = timeToComplete;
-        player.UpdateGameState(gameState);
+        UpdateGameStates();
         player.difficultyDecayRate = 1f + (difficultyDecayRate * level);
     }
 
     public void RefreshGame()
     {
+        player.transform.position = PlayerStartPosition.transform.position;
         stageManager.ClearStage();
         stageManager.GenerateStage();
+    }
+
+    public void TriggerGameOver()
+    {
+        gameState = GameState.GameOver;
+        uiManager.ShowGameOverScreen();
     }
 }

@@ -27,16 +27,59 @@ public class ResourceManager : MonoBehaviour
 
     private InputAction switchAction;
     private InputAction useAction;
+    private GameState gameState;
+
+    private int selectedItem;
 
     private void Awake()
     {
         switchAction = InputSystem.actions.FindAction("Switch");
         useAction = InputSystem.actions.FindAction("Use");
+        selectedItem = 0;
     }
 
     private void Update()
     {
-        
+        if (gameState == GameState.Active)
+        {
+            if (switchAction.WasPressedThisFrame())
+            {
+                Debug.Log(selectedItem);
+                SwitchSelectedItem();
+                uiManager.UpdateIndicator((ItemType)selectedItem);
+            }
+
+            if (useAction.WasPressedThisFrame())
+            {
+                UseSelectedItem();
+            }
+        }
+    }
+
+    private void SwitchSelectedItem()
+    {
+        selectedItem++;
+        if (selectedItem >= 3)
+        {
+            selectedItem = 0;
+        }
+    }
+
+    private void UseSelectedItem()
+    {
+        ItemType type = (ItemType)selectedItem;
+        if (itemCounts[type] > 0)
+        {
+            itemCounts[type]--;
+        }
+        fuel += GetSelectedItemFuel();
+        uiManager.UpdateUIWithItems(itemCounts);
+    }
+
+    private float GetSelectedItemFuel()
+    {
+        ItemType type = (ItemType)selectedItem;
+        return items[type].fuelValue;
     }
 
     public void Start()
@@ -55,6 +98,7 @@ public class ResourceManager : MonoBehaviour
         }
         fuel = maxFuel;
         currency = StartingCurrency;
+        uiManager.UpdateIndicator((ItemType)selectedItem);
     }
 
     public int GetCurrency()
@@ -72,7 +116,12 @@ public class ResourceManager : MonoBehaviour
     {
         fuel -= adjustment;
         fuel = Mathf.Clamp(fuel, 0, 100);
-        uiManager.UpdateFuel(fuel / maxFuel);
+        uiManager.UpdateFuel((fuel / maxFuel), (Mathf.Clamp(fuel + GetSelectedItemFuel(), 0, 100) / maxFuel));
+        if (fuel < 0.01f)
+        {
+            gameManager.TriggerGameOver();
+        }
+
     }
 
     public void AddItem(ItemType type)
@@ -81,12 +130,13 @@ public class ResourceManager : MonoBehaviour
         uiManager.UpdateUIWithItems(itemCounts);
     }
 
-    public void SellItem(ItemType type)
+    public void SellItem(int itemInt)
     {
+        ItemType type = (ItemType)itemInt;
         if (itemCounts[type] > 0)
         {
             itemCounts[type]--;
-            currency += items[type].cost;
+            AdjustCurrency(items[type].cost);
         }
 
         uiManager.UpdateUIWithItems(itemCounts);
@@ -95,5 +145,10 @@ public class ResourceManager : MonoBehaviour
     public void PushUpdateToUI()
     {
         uiManager.UpdateUIWithItems(itemCounts);
+    }
+
+    public void UpdateGameState(GameState gameState)
+    {
+        this.gameState = gameState;
     }
 }
