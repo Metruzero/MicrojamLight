@@ -19,6 +19,7 @@ public class ResourceManager : MonoBehaviour
     public void Start()
     {
         fuel = maxFuel;
+        currency = StartingCurrency;
     }
 
     public int GetCurrency()
@@ -34,6 +35,7 @@ public class ResourceManager : MonoBehaviour
     public void ReduceFuel(float adjustment)
     {
         fuel -= adjustment;
+        fuel = Mathf.Clamp(fuel, 0, 100);
         uiManager.UpdateFuel(fuel / maxFuel);
     }
 }

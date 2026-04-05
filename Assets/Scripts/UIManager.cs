@@ -4,6 +4,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [Serializable]
 public class UpgradeButton
@@ -85,6 +86,13 @@ public class UIManager : MonoBehaviour
         foreach (var button in upgradeButtons)
         {
             button.buttonObject.SetActive(false);
+            button.buttonObject.GetComponent<Button>().interactable = true;
         }
+    }
+
+    public void UpgradeCompleteDisableButton(int ind)
+    {
+        Debug.Log("upgradeButtons[ind].buttonObject.GetComponent<Button>().interactable" + upgradeButtons[ind].buttonObject.GetComponent<Button>().interactable);
+        upgradeButtons[ind].buttonObject.GetComponent<Button>().interactable = false;
     }
 }

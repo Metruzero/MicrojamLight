@@ -96,10 +96,11 @@ public class Player : MonoBehaviour
 
         // Reduce fuel
         float upgradeReductionValue = (1f - (upgradeLevels[UpgradeType.FuelEfficiency] * upgradeValues[UpgradeType.FuelEfficiency]));
-        float lightRadiusFuelModifier = (1f + (lightRadiusLevel * fuelDecayGrowthRate));
+        float growthRateUpgradeModification = (1f - (upgradeLevels[UpgradeType.LargerLightEfficiency] * upgradeValues[UpgradeType.LargerLightEfficiency]));
+        Debug.Log("growthRateUpgradeModification: " + growthRateUpgradeModification);
+        float lightRadiusFuelModifier = (1f + (lightRadiusLevel * fuelDecayGrowthRate * growthRateUpgradeModification));
 
         fuelValue -= fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * Time.deltaTime;
-        fuelValue = Mathf.Clamp(fuelValue, 0, 100);
         resourceManager.ReduceFuel(fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * Time.deltaTime);
         
     }

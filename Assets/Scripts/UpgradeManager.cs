@@ -26,7 +26,7 @@ public class UpgradeDetails
     public int maxLevel;
     public float value;
     public int cost;
-    public float costScale;
+    public int costScale;
 }
 
 public class UpgradeManager : MonoBehaviour
@@ -41,6 +41,9 @@ public class UpgradeManager : MonoBehaviour
 
     [SerializeField]
     private UIManager uiManager;
+
+    [SerializeField]
+    private Player player;
 
     private UpgradeType[] currentUpgradeToPurchase;
 
@@ -88,14 +91,45 @@ public class UpgradeManager : MonoBehaviour
 
             UpgradeDetails uDetails = upgradeDictionary[upgradeType];
 
+            int cost = CalculateCost(uDetails);
+
             uiManager.UpdateUpgradeButton(uDetails.title, uDetails.description, uDetails.cost, true, i);
         }
     }
 
     public void PurchaseUpgrade(int index)
     {
+        UpgradeType type = currentUpgradeToPurchase[index];
+        Debug.Log(type);
+
+        UpgradeDetails details = upgradeDictionary[type];
+
+        int cost = CalculateCost(details);
+
+        // Check if player has resource.
+        if (cost <= resourceManager.GetCurrency())
+        {
+            resourceManager.AdjustCurrency(-cost);
+            details.currentLevel++;
+            // If this raises the upgrade to max level, remove it from the pool
+            if (details.currentLevel >= details.maxLevel)
+            {
+                availableUpgradeTypes.Remove(type);
+            }
+            uiManager.UpgradeCompleteDisableButton(index);
+        }
+    }
+
+    private int CalculateCost(UpgradeDetails uDetails)
+    {
+        return uDetails.cost + (uDetails.costScale * uDetails.currentLevel);
+    }
+
+    private void PushUpgrades()
+    {
 
     }
+
 }
 
 
