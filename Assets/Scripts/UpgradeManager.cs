@@ -35,7 +35,7 @@ public class UpgradeManager : MonoBehaviour
     public List<UpgradeDetails> details;
     public Dictionary<UpgradeType, UpgradeDetails> upgradeDictionary;
     private List<UpgradeType> availableUpgradeTypes;
-    private Dictionary<ItemType, int> itemCounts;
+    
 
     [SerializeField]
     private ResourceManager resourceManager;
@@ -50,12 +50,6 @@ public class UpgradeManager : MonoBehaviour
 
     void Start()
     {
-        itemCounts = new Dictionary<ItemType, int>();
-        foreach (ItemType type in Enum.GetValues(typeof(ItemType)))
-        {
-            itemCounts.Add(type, 0);
-        }
-
         availableUpgradeTypes = new List<UpgradeType>();
         foreach (UpgradeType upgradeType in Enum.GetValues(typeof(UpgradeType)))
         {
@@ -137,7 +131,6 @@ public class UpgradeManager : MonoBehaviour
     {
         player.UpdateUpgrades(details);
     }
-
 }
 
 

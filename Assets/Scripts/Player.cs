@@ -114,7 +114,6 @@ public class Player : MonoBehaviour
             float upgradeReductionValue = (1f - (upgradeLevels[UpgradeType.FuelEfficiency] * upgradeValues[UpgradeType.FuelEfficiency]));
 
             float growthRateUpgradeModification = (1f - (upgradeLevels[UpgradeType.LargerLightEfficiency] * upgradeValues[UpgradeType.LargerLightEfficiency]));
-            Debug.Log("growthRateUpgradeModification: " + growthRateUpgradeModification);
             float lightRadiusFuelModifier = (1f + (lightRadiusLevel * fuelDecayGrowthRate * growthRateUpgradeModification));
 
             fuelValue -= fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * Time.deltaTime;
@@ -148,7 +147,13 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        
+        if (collision.CompareTag("Pickup"))
+        {
+            Pickup pickup = collision.GetComponent<Pickup>();
+            resourceManager.AddItem(pickup.item.Type);
+            Destroy(pickup.gameObject);
+            
+        }
     }
 
     public void UpdateGameState(GameState gameState)

@@ -135,4 +135,10 @@ public class UIManager : MonoBehaviour
         gameplayPanel.SetActive(false);
         shopPanel.SetActive(true);
     }
+
+    public void HideShop()
+    {
+        gameplayPanel.SetActive(true);
+        shopPanel.SetActive(false);
+    }
 }

@@ -35,7 +35,6 @@ public class GameManager : MonoBehaviour
     {
         time -= Time.deltaTime;
         
-
         if (gameState == GameState.Active)
         {
             if (time <= 0)
@@ -43,6 +42,7 @@ public class GameManager : MonoBehaviour
                 gameState = GameState.LevelCompleteTransition;
                 uiManager.ShowLevelCompletePanel();
                 time = transitionTimeToShop;
+                player.UpdateGameState(gameState);
             }
             uiManager.UpdateTime(time);
         }
@@ -56,7 +56,6 @@ public class GameManager : MonoBehaviour
                 uiManager.ShowShop();
             }
         }
-
     }
 
     public void StartGame()
@@ -64,5 +63,10 @@ public class GameManager : MonoBehaviour
         gameState = GameState.Active;
         time = timeToComplete;
         player.UpdateGameState(gameState);
+    }
+
+    public void RefreshGame()
+    {
+
     }
 }

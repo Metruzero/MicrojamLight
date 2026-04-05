@@ -12,5 +12,4 @@ public enum ItemType
 public class Item
 {
     public ItemType Type;
-    public float fuelValue;
 }
