@@ -1,3 +1,4 @@
+using System.Resources;
 using UnityEngine;
 
 public enum GameState
@@ -17,6 +18,8 @@ public class GameManager : MonoBehaviour
     private UpgradeManager upgradeManager;
     [SerializeField]
     private StageManager stageManager;
+    [SerializeField]
+    private ResourceManager resourceManager;
 
     [SerializeField]
     private Player player;
@@ -44,6 +47,7 @@ public class GameManager : MonoBehaviour
             if (time <= 0)
             {
                 gameState = GameState.LevelCompleteTransition;
+                resourceManager.AdjustCurrency(0);
                 uiManager.ShowLevelCompletePanel();
                 time = transitionTimeToShop;
                 player.UpdateGameState(gameState);
@@ -56,6 +60,7 @@ public class GameManager : MonoBehaviour
             if (time <= 0)
             {
                 gameState = GameState.Shop;
+                resourceManager.PushUpdateToUI();
                 uiManager.HideLevelCompletePanel();
                 upgradeManager.RefreshUpgrades();
                 uiManager.ShowShop();
@@ -74,6 +79,7 @@ public class GameManager : MonoBehaviour
 
     public void RefreshGame()
     {
+        stageManager.ClearStage();
         stageManager.GenerateStage();
     }
 }

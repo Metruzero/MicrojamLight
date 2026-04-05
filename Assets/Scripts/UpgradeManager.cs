@@ -94,7 +94,7 @@ public class UpgradeManager : MonoBehaviour
 
             int cost = CalculateCost(uDetails);
 
-            uiManager.UpdateUpgradeButton(uDetails.title, uDetails.description, uDetails.cost, true, i);
+            uiManager.UpdateUpgradeButton(uDetails.title, uDetails.description, cost, true, i);
         }
     }
 
@@ -131,6 +131,8 @@ public class UpgradeManager : MonoBehaviour
     {
         player.UpdateUpgrades(details);
     }
+
+
 }
 
 

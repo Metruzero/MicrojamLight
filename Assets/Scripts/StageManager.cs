@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 using Random = UnityEngine.Random;
+using Unity.VisualScripting;
 
 public class StageManager : MonoBehaviour
 {
@@ -30,9 +31,12 @@ public class StageManager : MonoBehaviour
 
     public float baseWorkDuration;
 
+    private List<GameObject> spawnedObjects;
+
     public void Start()
     {
         totalWeight = CalculateTotalWeight();
+        spawnedObjects = new List<GameObject>();
     }
 
     public void GenerateStage()
@@ -58,6 +62,7 @@ public class StageManager : MonoBehaviour
             Pickup newPickup = Instantiate(pickupPrefab, spawnPoint.transform.position, spawnPoint.transform.rotation);
             newPickup.item.Type = itemData.type;
             newPickup.GetComponent<SpriteRenderer>().sprite = itemData.icon;
+            spawnedObjects.Add(newPickup.gameObject);
 
 
 
@@ -80,6 +85,7 @@ public class StageManager : MonoBehaviour
             }
             newCrate.resourceManager = this.resourceManager;
             newCrate.WorkDuration = workDuration;
+            spawnedObjects.Add(newCrate.gameObject);
 
 
         }
@@ -152,5 +158,17 @@ public class StageManager : MonoBehaviour
             }
         }
         return itemCount;
+    }
+
+    public void ClearStage()
+    {
+        foreach (var item in spawnedObjects)
+        {
+            if (item != null)
+            {
+                Destroy(item);
+            }
+        }
+        spawnedObjects.Clear();
     }
 }

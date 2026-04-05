@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using TMPro;
 using Unity.VisualScripting;
@@ -42,9 +43,30 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI shopBarrelTMP, shopBottleTMP, shopBatteryTMP;
 
+    [SerializeField]
+    private TextMeshProUGUI currencyTMP;
+
+    [SerializeField]
+    private TextMeshProUGUI sellBarrelTMP, sellBottleTMP, sellBatteryTMP;
+
+    [SerializeField]
+    private Button sellBarrelButton, sellBottleButton, sellBatteryButton;
+
+    private Dictionary<ItemType, ItemDataSO> items;
+
+    [SerializeField]
+    private RectTransform barrelIndicator, batteryIndicator, bottleIndicator;
+
+    public GameObject ArrowIndicator;
+
     private void Awake()
     {
         fuelBarRect = fuelBar.GetComponent<RectTransform>();
+        items = new Dictionary<ItemType, ItemDataSO>();
+        foreach (ItemDataSO item in datas)
+        {
+            items.Add(item.type, item);
+        }
     }
 
     public void UpdateTime(float time)
@@ -80,7 +102,6 @@ public class UIManager : MonoBehaviour
 
     public void UpgradeCompleteDisableButton(int ind)
     {
-        Debug.Log("upgradeButtons[ind].buttonObject.GetComponent<Button>().interactable" + upgradeButtons[ind].buttonObject.GetComponent<Button>().interactable);
         upgradeButtons[ind].buttonObject.GetComponent<Button>().interactable = false;
     }
 
@@ -137,19 +158,46 @@ public class UIManager : MonoBehaviour
                 case ItemType.OilBottle:
                     gameplayBottleTMP.text = itemCounts[item].ToString();
                     shopBottleTMP.text += itemCounts[item].ToString();
+                    sellBottleTMP.text = string.Concat("Sell for ", items[item].cost.ToString());
+                    sellBottleButton.interactable = itemCounts[item] > 0;
                     break;
                 case ItemType.OilBarrel:
                     gameplayBarrelTMP.text = itemCounts[item].ToString();
                     shopBarrelTMP.text += itemCounts[item].ToString();
+                    sellBarrelTMP.text = string.Concat("Sell for ", items[item].cost.ToString());
+                    sellBarrelButton.interactable = itemCounts[item] > 0;
                     break;
                 case ItemType.Battery:
                     gameplayBatteryTMP.text = itemCounts[item].ToString();
                     shopBatteryTMP.text += itemCounts[item].ToString();
+                    sellBatteryTMP.text = string.Concat("Sell for ", items[item].cost.ToString());
+                    sellBatteryButton.interactable = itemCounts[item] > 0;
                     break;
                 default:
                     break;
 
             }
+        }
+    }
+
+    public void UpdateCurrency(int currency)
+    {
+        currencyTMP.text = currency.ToString();
+    }
+
+    public void UpdateIndicator(ItemType type)
+    {
+        if (type == ItemType.OilBarrel)
+        {
+            ArrowIndicator.transform.position = barrelIndicator.transform.position;
+        }
+        if (type == ItemType.Battery)
+        {
+            ArrowIndicator.transform.position = batteryIndicator.transform.position;
+        }
+        if (type == ItemType.OilBottle)
+        {
+            ArrowIndicator.transform.position = bottleIndicator.transform.position;
         }
     }
 }
