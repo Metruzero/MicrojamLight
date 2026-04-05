@@ -4,8 +4,8 @@ using UnityEngine;
 public enum ItemType
 {
     Battery,
-    Matches,
-    Oil
+    OilBottle,
+    OilBarrel
 }
 
 [Serializable]

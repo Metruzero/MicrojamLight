@@ -51,6 +51,5 @@ public class ResourceManager : MonoBehaviour
     public void AddItem(ItemType type)
     {
         itemCounts[type]++;
-        Debug.Log(type + " " + itemCounts[type]);
     }
 }

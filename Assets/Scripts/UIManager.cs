@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -16,6 +17,7 @@ public class UpgradeButton
 }
 public class UIManager : MonoBehaviour
 {
+    public List<ItemDataSO> datas;
 
     [SerializeField]
     private TextMeshProUGUI timeTMP;
@@ -31,34 +33,18 @@ public class UIManager : MonoBehaviour
 
     private RectTransform fuelBarRect;
 
-    private InputAction toggleAction;
-    private bool displayToggle = false;
-
     [SerializeField]
     private GameObject dialogueContainerPanel, upgradePanel, sellPanel, levelCompletePanel;
+
+    [SerializeField]
+    private TextMeshProUGUI gameplayBarrelTMP, gameplayBottleTMP, gameplayBatteryTMP;
+
+    [SerializeField]
+    private TextMeshProUGUI shopBarrelTMP, shopBottleTMP, shopBatteryTMP;
 
     private void Awake()
     {
         fuelBarRect = fuelBar.GetComponent<RectTransform>();
-        toggleAction = InputSystem.actions.FindAction("Interact");
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (toggleAction.WasPressedThisFrame())
-        {
-            if (!displayToggle)
-            {
-                ShowShop();
-            }
-            else
-            {
-                gameplayPanel.SetActive(true);
-                shopPanel.SetActive(false);
-            }
-            displayToggle = !displayToggle;
-        }
     }
 
     public void UpdateTime(float time)
@@ -140,5 +126,30 @@ public class UIManager : MonoBehaviour
     {
         gameplayPanel.SetActive(true);
         shopPanel.SetActive(false);
+    }
+
+    public void UpdateUIWithItems(Dictionary<ItemType, int> itemCounts)
+    {
+        foreach (ItemType item in Enum.GetValues(typeof(ItemType)))
+        {
+            switch(item)
+            {
+                case ItemType.OilBottle:
+                    gameplayBottleTMP.text = itemCounts[item].ToString();
+                    shopBottleTMP.text += itemCounts[item].ToString();
+                    break;
+                case ItemType.OilBarrel:
+                    gameplayBarrelTMP.text = itemCounts[item].ToString();
+                    shopBarrelTMP.text += itemCounts[item].ToString();
+                    break;
+                case ItemType.Battery:
+                    gameplayBatteryTMP.text = itemCounts[item].ToString();
+                    shopBatteryTMP.text += itemCounts[item].ToString();
+                    break;
+                default:
+                    break;
+
+            }
+        }
     }
 }

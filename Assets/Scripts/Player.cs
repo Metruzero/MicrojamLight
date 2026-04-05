@@ -42,6 +42,15 @@ public class Player : MonoBehaviour
     private Dictionary<UpgradeType, float> upgradeValues;
     [SerializeField]
     private SpriteRenderer spriteRenderer;
+    private InputAction interactAction;
+
+    private Interactable CurrentInteractable;
+    private float currentMaxWorkTime;
+
+    private float currentWorkDuration;
+    private bool isWorking = false;
+
+    public float difficultyDecayRate;
 
 
     private void Awake()
@@ -49,6 +58,7 @@ public class Player : MonoBehaviour
         moveInput = InputSystem.actions.FindAction("Move");
         previousInput = InputSystem.actions.FindAction("Previous");
         nextInput = InputSystem.actions.FindAction("Next");
+        interactAction = InputSystem.actions.FindAction("Interact");
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -117,7 +127,25 @@ public class Player : MonoBehaviour
             float lightRadiusFuelModifier = (1f + (lightRadiusLevel * fuelDecayGrowthRate * growthRateUpgradeModification));
 
             fuelValue -= fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * Time.deltaTime;
-            resourceManager.ReduceFuel(fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * Time.deltaTime);
+            resourceManager.ReduceFuel(fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * difficultyDecayRate * Time.deltaTime);
+
+            if (interactAction.IsPressed() && CurrentInteractable != null)
+            {
+                currentWorkDuration += Time.deltaTime;
+                if (currentWorkDuration > currentMaxWorkTime)
+                {
+                    CurrentInteractable.Complete();
+                }
+                isWorking = true;
+
+            }
+
+            if (interactAction.WasReleasedThisFrame() && isWorking)
+            {
+                isWorking = false;
+                currentWorkDuration = 0f;
+            }
+
         }
     }
 
@@ -153,6 +181,15 @@ public class Player : MonoBehaviour
             resourceManager.AddItem(pickup.item.Type);
             Destroy(pickup.gameObject);
             
+        }
+        if (collision.CompareTag("Interactable"))
+        {
+            Interactable inter = collision.GetComponent<Interactable>();
+            if (inter != null)
+            {
+                CurrentInteractable = inter;
+                currentMaxWorkTime = inter.WorkDuration;
+            }
         }
     }
 

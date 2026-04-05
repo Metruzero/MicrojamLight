@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     private UIManager uiManager;
     [SerializeField]
     private UpgradeManager upgradeManager;
+    [SerializeField]
+    private StageManager stageManager;
 
     [SerializeField]
     private Player player;
@@ -24,13 +26,15 @@ public class GameManager : MonoBehaviour
     private float time;
     private GameState gameState;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private int level = 1;
+    public float difficultyDecayRate;
+
     void Start()
     {
+        RefreshGame();
         StartGame();
     }
 
-    // Update is called once per frame
     void Update()
     {
         time -= Time.deltaTime;
@@ -43,6 +47,7 @@ public class GameManager : MonoBehaviour
                 uiManager.ShowLevelCompletePanel();
                 time = transitionTimeToShop;
                 player.UpdateGameState(gameState);
+                level++;
             }
             uiManager.UpdateTime(time);
         }
@@ -54,6 +59,7 @@ public class GameManager : MonoBehaviour
                 uiManager.HideLevelCompletePanel();
                 upgradeManager.RefreshUpgrades();
                 uiManager.ShowShop();
+                player.UpdateGameState(gameState);
             }
         }
     }
@@ -63,10 +69,11 @@ public class GameManager : MonoBehaviour
         gameState = GameState.Active;
         time = timeToComplete;
         player.UpdateGameState(gameState);
+        player.difficultyDecayRate = 1f + (difficultyDecayRate * level);
     }
 
     public void RefreshGame()
     {
-
+        stageManager.GenerateStage();
     }
 }
