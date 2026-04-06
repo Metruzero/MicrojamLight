@@ -97,6 +97,14 @@ public class GameManager : MonoBehaviour
     public void TriggerGameOver()
     {
         gameState = GameState.GameOver;
+        UpdateGameStates();
         uiManager.ShowGameOverScreen();
+    }
+    public void TriggerGameOut()
+    {
+        player.HardReset();
+        stageManager.HardReset();
+        upgradeManager.HardReset();
+        resourceManager.HardReset();
     }
 }

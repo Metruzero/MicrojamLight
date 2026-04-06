@@ -41,6 +41,9 @@ public class UpgradeManager : MonoBehaviour
     private ResourceManager resourceManager;
 
     [SerializeField]
+    private StageManager stageManager;
+
+    [SerializeField]
     private UIManager uiManager;
 
     [SerializeField]
@@ -130,6 +133,15 @@ public class UpgradeManager : MonoBehaviour
     private void PushUpgrades()
     {
         player.UpdateUpgrades(details);
+        stageManager.UpdateUpgrades(upgradeDictionary);
+    }
+
+    public void HardReset()
+    {
+        foreach (var uDetails in upgradeDictionary)
+        {
+            uDetails.Value.currentLevel = 0;
+        }
     }
 
 

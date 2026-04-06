@@ -55,6 +55,9 @@ public class Player : MonoBehaviour
     [SerializeField]
     private UIManager uiManager;
 
+    public AudioSource audioSource;
+    public AudioClip footsteps;
+
 
     private void Awake()
     {
@@ -76,6 +79,8 @@ public class Player : MonoBehaviour
             upgradeLevels.Add(uType, 0);
             upgradeValues.Add(uType, 0);
         }
+        audioSource.loop = true;
+        audioSource.clip = footsteps;
     }
 
     private void Animate(Vector2 moveValue)
@@ -100,12 +105,24 @@ public class Player : MonoBehaviour
 
             // Movement
             Vector2 moveValue = moveInput.ReadValue<Vector2>();
-            float moveUpgradeModifier = 1f + (upgradeValues[UpgradeType.MovementSpeed] * upgradeLevels[UpgradeType.MovementSpeed]);
+            float moveUpgradeModifier = upgradeLevels.ContainsKey(UpgradeType.MovementSpeed) ?
+                1f + (upgradeValues[UpgradeType.MovementSpeed] * upgradeLevels[UpgradeType.MovementSpeed]) :
+                1f;
             rb.linearVelocity = moveValue * moveSpeed * moveUpgradeModifier;
 
             if (moveValue.magnitude > 0.1)
             {
                 lastMove = moveValue;
+            }
+
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
+
+            if (moveValue.magnitude < 0.1)
+            {
+                audioSource.Stop();
             }
 
             Animate(moveValue);
@@ -122,15 +139,19 @@ public class Player : MonoBehaviour
             }
 
             // Reduce fuel
-            float upgradeReductionValue = (1f - (upgradeLevels[UpgradeType.FuelEfficiency] * upgradeValues[UpgradeType.FuelEfficiency]));
+            float upgradeReductionValue = upgradeLevels.ContainsKey(UpgradeType.FuelEfficiency)
+                ? (1f - (upgradeLevels[UpgradeType.FuelEfficiency] * upgradeValues[UpgradeType.FuelEfficiency]))
+                : 1f;
 
-            float growthRateUpgradeModification = (1f - (upgradeLevels[UpgradeType.LargerLightEfficiency] * upgradeValues[UpgradeType.LargerLightEfficiency]));
+            float growthRateUpgradeModification = upgradeLevels.ContainsKey(UpgradeType.LargerLightEfficiency)
+                ? (1f - (upgradeLevels[UpgradeType.LargerLightEfficiency] * upgradeValues[UpgradeType.LargerLightEfficiency])) :
+                1f;
             float lightRadiusFuelModifier = (1f + (lightRadiusLevel * fuelDecayGrowthRate * growthRateUpgradeModification));
 
             fuelValue -= fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * Time.deltaTime;
             resourceManager.ReduceFuel(fuelDecayRate * upgradeReductionValue * lightRadiusFuelModifier * difficultyDecayRate * Time.deltaTime);
 
-            if (interactAction.IsPressed() && CurrentInteractable != null)
+            if (interactAction.IsPressed() && CurrentInteractable != null && !CurrentInteractable.opened)
             {
                 uiManager.ShowProgressBar();
                 currentWorkDuration += Time.deltaTime;
@@ -201,5 +222,11 @@ public class Player : MonoBehaviour
     public void UpdateGameState(GameState gameState)
     {
         this.gameState = gameState;
+    }
+
+    public void HardReset()
+    {
+        upgradeLevels.Clear();
+        upgradeValues.Clear();
     }
 }

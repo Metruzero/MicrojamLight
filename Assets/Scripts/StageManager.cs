@@ -84,7 +84,7 @@ public class StageManager : MonoBehaviour
                 newCrate.contents.Add(RandomItem().type);
             }
             newCrate.resourceManager = this.resourceManager;
-            newCrate.WorkDuration = workDuration;
+            newCrate.WorkDuration = workDuration - (interactionLevel * interactionUpgradeValue);
             spawnedObjects.Add(newCrate.gameObject);
 
 
@@ -122,11 +122,20 @@ public class StageManager : MonoBehaviour
         return totalWeight;
     }
 
+    private float CalculateLootLevelUpgrade()
+    {
+        return (1f + (lootLevel * lootLevelUpgradeValue));
+    }
+
     private int CalculateTotalWeightItemCounts()
     {
         int totalWeight = 0;
         for (int i = 0; i < createItemCountWeights.Length; i++)
         {
+            if (i > 0)
+            {
+                totalWeight += (int)(createItemCountWeights[i] * CalculateLootLevelUpgrade());
+            }
             totalWeight += createItemCountWeights[i];
         }
         return totalWeight;
@@ -149,7 +158,14 @@ public class StageManager : MonoBehaviour
         int itemCount = 0;
         for (int j = 0; j < datas.Count; j++)
         {
-            currentSum += createItemCountWeights[j];
+            if (j > 0)
+            {
+                currentSum += (int)(createItemCountWeights[j] * CalculateLootLevelUpgrade());
+            }
+            else
+            {
+                currentSum += createItemCountWeights[j];
+            }
             if (randomWeight < currentSum)
             {
                 itemCount = crateItemCounts[j];
@@ -170,4 +186,13 @@ public class StageManager : MonoBehaviour
         }
         spawnedObjects.Clear();
     }
+
+    public void HardReset()
+    {
+        ClearStage();
+        interactionLevel = 0;
+        interactionUpgradeValue = 0f;
+        lootLevel = 0;
+        lootLevelUpgradeValue = 0f;
+}
 }

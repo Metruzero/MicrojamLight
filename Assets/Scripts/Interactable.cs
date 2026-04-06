@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Audio;
 
 
 public class Interactable : MonoBehaviour
@@ -9,8 +10,10 @@ public class Interactable : MonoBehaviour
     public float WorkDuration;
     public ResourceManager resourceManager;
     public List<ItemType> contents;
-    private bool opened = false;
+    public bool opened = false;
     public Sprite openCrate;
+    public AudioClip openCrateClip;
+    public AudioSource audioSource;
 
 
     private void Awake()
@@ -27,6 +30,7 @@ public class Interactable : MonoBehaviour
             resourceManager.AddItem(item);
         }
         GetComponent<SpriteRenderer>().sprite = openCrate;
+        audioSource.PlayOneShot(openCrateClip);
         opened = true;
     }
 

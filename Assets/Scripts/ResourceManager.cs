@@ -71,8 +71,8 @@ public class ResourceManager : MonoBehaviour
         if (itemCounts[type] > 0)
         {
             itemCounts[type]--;
+            fuel += GetSelectedItemFuel();
         }
-        fuel += GetSelectedItemFuel();
         uiManager.UpdateUIWithItems(itemCounts);
     }
 
@@ -150,5 +150,10 @@ public class ResourceManager : MonoBehaviour
     public void UpdateGameState(GameState gameState)
     {
         this.gameState = gameState;
+    }
+
+    public void HardReset()
+    {
+        currency = StartingCurrency;
     }
 }
