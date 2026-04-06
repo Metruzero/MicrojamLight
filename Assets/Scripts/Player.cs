@@ -94,6 +94,11 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+
+        if (gameState != GameState.Active)
+        {
+            audioSource.Stop();
+        }
         if (gameState == GameState.Active)
         {
             // This will "randomly" change the intensity of the light to create a flicker effect

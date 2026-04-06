@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private ResourceManager resourceManager;
 
+    public MusicManager musicManager;
+
     [SerializeField]
     private Player player;
     public float timeToComplete;
@@ -68,6 +70,7 @@ public class GameManager : MonoBehaviour
                 uiManager.HideLevelCompletePanel();
                 upgradeManager.RefreshUpgrades();
                 uiManager.ShowShop();
+                musicManager.PlayShopMusic();
                 UpdateGameStates();
             }
         }
@@ -85,6 +88,8 @@ public class GameManager : MonoBehaviour
         time = timeToComplete;
         UpdateGameStates();
         player.difficultyDecayRate = 1f + (difficultyDecayRate * level);
+        musicManager.PlayGameMusic();
+
     }
 
     public void RefreshGame()
